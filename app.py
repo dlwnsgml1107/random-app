@@ -6,11 +6,114 @@ import matplotlib.pyplot as plt
 
 
 # ------------------------------------------------------------
-# 1. 회로 계산 함수
+# 1. 화면 설정 및 디자인
+# ------------------------------------------------------------
+
+st.set_page_config(
+    page_title="RC Filter Analyzer",
+    page_icon="🔌",
+    layout="wide"
+)
+
+st.markdown("""
+<style>
+
+/* 전체 화면 */
+.block-container {
+    max-width: 1200px;
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+}
+
+/* 제목 */
+h1 {
+    font-size: 1.65rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.3rem !important;
+}
+
+h2 {
+    font-size: 1.25rem !important;
+    font-weight: 650 !important;
+}
+
+h3 {
+    font-size: 1.05rem !important;
+}
+
+/* 본문 글씨 */
+p, label, .stMarkdown {
+    font-size: 0.88rem;
+}
+
+/* 설명 글씨 */
+.stCaption {
+    font-size: 0.75rem;
+}
+
+/* 결과 카드 */
+[data-testid="stMetric"] {
+    background-color: rgba(128, 128, 128, 0.07);
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+/* 결과 카드 내부 글씨 */
+[data-testid="stMetricLabel"] {
+    font-size: 0.78rem !important;
+}
+
+[data-testid="stMetricValue"] {
+    font-size: 1.35rem !important;
+    font-weight: 650;
+}
+
+/* 입력창 */
+.stNumberInput, .stSelectbox {
+    margin-bottom: 0.35rem;
+}
+
+/* 버튼 */
+.stButton button,
+.stDownloadButton button {
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+/* 구분선 */
+hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* 데이터 표 */
+[data-testid="stDataFrame"] {
+    border-radius: 8px;
+}
+
+/* 사이드바 */
+[data-testid="stSidebar"] {
+    min-width: 270px;
+}
+
+/* 그래프 여백 */
+[data-testid="stImage"] {
+    margin: 0 auto;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# ------------------------------------------------------------
+# 2. 회로 계산 함수
 # ------------------------------------------------------------
 
 def cutoff_frequency(resistance_ohm, capacitance_f):
-    """차단 주파수 계산"""
+
     if resistance_ohm <= 0 or capacitance_f <= 0:
         raise ValueError("저항과 커패시터 값은 0보다 커야 합니다.")
 
@@ -19,7 +122,6 @@ def cutoff_frequency(resistance_ohm, capacitance_f):
 
 def calculate_response(filter_type, frequencies_hz,
                        resistance_ohm, capacitance_f):
-    """전압 이득과 위상차 계산"""
 
     frequencies = np.asarray(frequencies_hz, dtype=float)
 
@@ -31,16 +133,19 @@ def calculate_response(filter_type, frequencies_hz,
 
     x = 2.0 * np.pi * frequencies * resistance_ohm * capacitance_f
 
-    # 선택구조: 필터 종류에 따른 계산
+    # 선택구조
     if filter_type == "저역통과":
+
         gain = 1.0 / np.sqrt(1.0 + x**2)
         phase_deg = -np.degrees(np.arctan(x))
 
     elif filter_type == "고역통과":
+
         gain = x / np.sqrt(1.0 + x**2)
         phase_deg = np.degrees(np.arctan2(1.0, x))
 
     else:
+
         raise ValueError("지원하지 않는 필터입니다.")
 
     gain_db = 20.0 * np.log10(np.maximum(gain, 1e-15))
@@ -49,26 +154,26 @@ def calculate_response(filter_type, frequencies_hz,
 
 
 # ------------------------------------------------------------
-# 2. 반복구조와 리스트를 이용한 출력 전압 계산 함수
+# 3. 반복문과 리스트를 이용한 출력 전압 계산
 # ------------------------------------------------------------
 
 def calculate_output_voltages(input_voltage, gains):
-    """for문과 리스트를 이용하여 출력 전압 계산"""
 
     output_voltage_list = []
 
-    # 반복구조: 각 주파수의 전압 이득을 순서대로 계산
+    # 반복구조
     for i in range(len(gains)):
+
         output_voltage = input_voltage * float(gains[i])
 
-        # 리스트에 계산 결과 추가
+        # 리스트에 결과 저장
         output_voltage_list.append(output_voltage)
 
     return output_voltage_list
 
 
 # ------------------------------------------------------------
-# 3. 자동 검증 함수
+# 4. 자동 검증 함수
 # ------------------------------------------------------------
 
 def run_self_tests():
@@ -96,31 +201,32 @@ def run_self_tests():
 
 
 # ------------------------------------------------------------
-# 4. Streamlit 화면 설정
+# 5. 메인 화면
 # ------------------------------------------------------------
 
-st.set_page_config(
-    page_title="전자 필터 설계 및 분석기",
-    page_icon="🔌",
-    layout="wide"
-)
-
 st.title("🔌 전자 필터 설계 및 주파수 응답 분석기")
+
+st.caption(
+    "RC Filter Design & Frequency Response Analyzer"
+)
 
 st.write(
     "저항과 커패시터 값을 입력하면 RC 필터의 차단 주파수, "
     "출력 전압, 전압 이득 및 위상 변화를 분석합니다."
 )
 
+st.divider()
+
 
 # ------------------------------------------------------------
-# 5. 용어 설명
+# 6. 용어 설명
 # ------------------------------------------------------------
 
 if "show_explanation" not in st.session_state:
     st.session_state.show_explanation = False
 
 if st.button("📘 전자 필터 용어 설명 보기 / 닫기"):
+
     st.session_state.show_explanation = not st.session_state.show_explanation
 
 if st.session_state.show_explanation:
@@ -129,7 +235,7 @@ if st.session_state.show_explanation:
 
         st.subheader("프로그램에 사용되는 기본 용어")
 
-        st.markdown(r"""
+        st.markdown("""
         **저항(R)**
 
         전류의 흐름을 제한하는 전자 부품입니다. 단위는 옴(Ω)입니다.
@@ -174,17 +280,16 @@ if st.session_state.show_explanation:
         \]
         """)
 
-
 st.info(
     "이 프로그램은 이상적인 1차 RC 저역통과·고역통과 필터를 분석합니다."
 )
 
 
 # ------------------------------------------------------------
-# 6. 사용자 입력
+# 7. 사용자 입력
 # ------------------------------------------------------------
 
-st.sidebar.header("회로 및 분석 조건 입력")
+st.sidebar.header("⚙️ 회로 및 분석 조건")
 
 filter_type = st.sidebar.selectbox(
     "필터 종류",
@@ -213,6 +318,10 @@ input_voltage = st.sidebar.number_input(
     max_value=100000.0,
     value=5.0
 )
+
+st.sidebar.divider()
+
+st.sidebar.subheader("주파수 분석")
 
 start_frequency = st.sidebar.number_input(
     "분석 시작 주파수 (Hz)",
@@ -245,13 +354,12 @@ test_frequency = st.sidebar.number_input(
 
 
 # ------------------------------------------------------------
-# 7. 입력값 검증 및 계산
+# 8. 계산 및 입력값 검증
 # ------------------------------------------------------------
 
 r_ohm = resistance_kohm * 1000.0
 c_f = capacitance_uf * 1e-6
 
-# 선택구조: 입력값 확인
 if end_frequency <= start_frequency:
 
     st.error("종료 주파수는 시작 주파수보다 커야 합니다.")
@@ -290,16 +398,14 @@ else:
 
 
 # ------------------------------------------------------------
-# 8. 리스트와 반복문을 이용한 데이터 처리
+# 9. 리스트와 반복문을 이용한 데이터 처리
 # ------------------------------------------------------------
 
-# NumPy 배열을 파이썬 리스트로 변환
 frequency_list = frequencies.tolist()
 gain_list = gain.tolist()
 gain_db_list = gain_db.tolist()
 phase_list = phase_deg.tolist()
 
-# for문과 리스트를 이용한 출력 전압 계산
 output_voltage_list = calculate_output_voltages(
     input_voltage,
     gain_list
@@ -307,10 +413,10 @@ output_voltage_list = calculate_output_voltages(
 
 
 # ------------------------------------------------------------
-# 9. 계산 결과 표시
+# 10. 계산 결과
 # ------------------------------------------------------------
 
-st.header("계산 결과")
+st.subheader("📊 분석 결과")
 
 col1, col2, col3 = st.columns(3)
 
@@ -320,12 +426,12 @@ col1.metric(
 )
 
 col2.metric(
-    "확인 주파수의 전압 이득",
+    "전압 이득",
     f"{float(point_gain[0]):.4f} 배"
 )
 
 col3.metric(
-    "확인 주파수의 위상차",
+    "위상차",
     f"{float(point_phase[0]):.2f}°"
 )
 
@@ -337,74 +443,114 @@ st.metric(
 )
 
 st.caption(
-    f"저항 = {r_ohm:,.2f} Ω / "
-    f"커패시터 = {c_f:.8g} F"
+    f"저항 = {r_ohm:,.2f} Ω  |  "
+    f"커패시터 = {c_f:.8g} F  |  "
+    f"입력 전압 = {input_voltage:g} V"
 )
 
-
-# ------------------------------------------------------------
-# 10. 주파수에 따른 전압 이득 그래프
-# ------------------------------------------------------------
-
-st.subheader("① 주파수에 따른 전압 이득")
-
-fig1, ax1 = plt.subplots(figsize=(9, 4))
-
-ax1.semilogx(frequency_list, gain_db_list)
-
-ax1.axvline(
-    fc,
-    linestyle="--",
-    label=f"Cutoff = {fc:.2f} Hz"
-)
-
-ax1.axhline(
-    -3.0103,
-    linestyle=":",
-    label="-3.01 dB"
-)
-
-ax1.set_xlabel("Frequency (Hz)")
-ax1.set_ylabel("Voltage gain (dB)")
-ax1.set_title(f"{filter_type} filter frequency response")
-ax1.grid(True, which="both", alpha=0.3)
-ax1.legend()
-
-st.pyplot(fig1)
-plt.close(fig1)
+st.divider()
 
 
 # ------------------------------------------------------------
-# 11. 주파수에 따른 위상 변화 그래프
+# 11. 주파수 응답 그래프
 # ------------------------------------------------------------
 
-st.subheader("② 주파수에 따른 위상 변화")
+st.subheader("📈 주파수 응답 분석")
 
-fig2, ax2 = plt.subplots(figsize=(9, 4))
+graph_col1, graph_col2 = st.columns(2)
 
-ax2.semilogx(frequency_list, phase_list)
+# 전압 이득 그래프
+with graph_col1:
 
-ax2.axvline(
-    fc,
-    linestyle="--",
-    label=f"Cutoff = {fc:.2f} Hz"
-)
+    st.markdown("**① 주파수에 따른 전압 이득**")
 
-ax2.set_xlabel("Frequency (Hz)")
-ax2.set_ylabel("Phase difference (degrees)")
-ax2.set_title(f"{filter_type} filter phase response")
-ax2.grid(True, which="both", alpha=0.3)
-ax2.legend()
+    fig1, ax1 = plt.subplots(figsize=(5.2, 2.7), dpi=100)
 
-st.pyplot(fig2)
-plt.close(fig2)
+    ax1.semilogx(
+        frequency_list,
+        gain_db_list,
+        linewidth=1.8,
+        label="Gain"
+    )
+
+    ax1.axvline(
+        fc,
+        linestyle="--",
+        linewidth=1,
+        label="Cutoff"
+    )
+
+    ax1.axhline(
+        -3.0103,
+        linestyle=":",
+        linewidth=1,
+        label="-3.01 dB"
+    )
+
+    ax1.set_xlabel("Frequency (Hz)", fontsize=8)
+    ax1.set_ylabel("Gain (dB)", fontsize=8)
+    ax1.set_title(
+        f"{filter_type} filter",
+        fontsize=10
+    )
+
+    ax1.tick_params(labelsize=7)
+    ax1.grid(True, which="both", alpha=0.25)
+    ax1.legend(fontsize=7, loc="best")
+
+    fig1.tight_layout()
+
+    st.pyplot(fig1, use_container_width=True)
+    plt.close(fig1)
+
+
+# 위상차 그래프
+with graph_col2:
+
+    st.markdown("**② 주파수에 따른 위상 변화**")
+
+    fig2, ax2 = plt.subplots(figsize=(5.2, 2.7), dpi=100)
+
+    ax2.semilogx(
+        frequency_list,
+        phase_list,
+        linewidth=1.8,
+        label="Phase"
+    )
+
+    ax2.axvline(
+        fc,
+        linestyle="--",
+        linewidth=1,
+        label="Cutoff"
+    )
+
+    ax2.set_xlabel("Frequency (Hz)", fontsize=8)
+    ax2.set_ylabel("Phase (degrees)", fontsize=8)
+
+    ax2.set_title(
+        f"{filter_type} filter",
+        fontsize=10
+    )
+
+    ax2.tick_params(labelsize=7)
+    ax2.grid(True, which="both", alpha=0.25)
+    ax2.legend(fontsize=7, loc="best")
+
+    fig2.tight_layout()
+
+    st.pyplot(fig2, use_container_width=True)
+    plt.close(fig2)
+
+
+st.divider()
 
 
 # ------------------------------------------------------------
-# 12. 계산 데이터 표 및 CSV 다운로드
+# 12. 계산 데이터 및 CSV 다운로드
 # ------------------------------------------------------------
 
-st.subheader("③ 계산 데이터")
+st.subheader("📋 계산 데이터")
 
 result_df = pd.DataFrame({
 
@@ -419,7 +565,8 @@ result_df = pd.DataFrame({
 st.dataframe(
     result_df,
     use_container_width=True,
-    hide_index=True
+    hide_index=True,
+    height=250
 )
 
 csv_data = result_df.to_csv(
@@ -434,11 +581,18 @@ st.download_button(
 )
 
 
+st.divider()
+
+
 # ------------------------------------------------------------
-# 13. 원하는 차단 주파수에 맞는 저항값 계산
+# 13. 설계 역산 기능
 # ------------------------------------------------------------
 
 st.subheader("④ 설계 역산 기능")
+
+st.write(
+    "원하는 차단 주파수에 맞는 저항값을 계산합니다."
+)
 
 target_fc = st.number_input(
     "목표 차단 주파수 (Hz)",
@@ -449,18 +603,21 @@ target_fc = st.number_input(
 
 required_r = 1.0 / (2.0 * np.pi * target_fc * c_f)
 
-st.write(
+st.success(
     f"현재 커패시터값 {capacitance_uf:g} μF를 유지한다면 "
-    f"필요한 저항은 **{required_r:,.2f} Ω "
-    f"({required_r/1000:.4f} kΩ)** 입니다."
+    f"필요한 저항은 {required_r:,.2f} Ω "
+    f"({required_r/1000:.4f} kΩ) 입니다."
 )
+
+
+st.divider()
 
 
 # ------------------------------------------------------------
 # 14. 자동 검증
 # ------------------------------------------------------------
 
-with st.expander("계산 공식 자동 검증 결과 보기"):
+with st.expander("🔍 계산 공식 자동 검증 결과 보기"):
 
     try:
 
@@ -475,6 +632,12 @@ with st.expander("계산 공식 자동 검증 결과 보기"):
 
         st.error("검증 실패: 계산 공식을 확인해야 합니다.")
 
+
+# ------------------------------------------------------------
+# 15. 하단 안내
+# ------------------------------------------------------------
+
+st.divider()
 
 st.caption(
     "교육용 시뮬레이터입니다. 실제 회로 제작 전에는 "
