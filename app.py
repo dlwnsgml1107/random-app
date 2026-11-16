@@ -3,7 +3,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
+from matplotlib.ticker import FuncFormatter, NullFormatter
 
 # ------------------------------------------------------------
 # 1. 화면 설정 및 디자인
@@ -541,6 +541,12 @@ with graph_col1:
         label="Gain"
     )
 
+    # 로그 축의 눈금을 수학 기호가 아닌 일반 숫자로 표시
+    ax1.xaxis.set_major_formatter(
+        FuncFormatter(lambda value, position: f"{value:,.0f}")
+    )
+    ax1.xaxis.set_minor_formatter(NullFormatter())
+
     ax1.axvline(
         fc,
         linestyle="--",
@@ -583,6 +589,12 @@ with graph_col2:
         linewidth=1.8,
         label="Phase"
     )
+
+    # 로그 축의 눈금을 수학 기호가 아닌 일반 숫자로 표시
+    ax2.xaxis.set_major_formatter(
+        FuncFormatter(lambda value, position: f"{value:,.0f}")
+    )
+    ax2.xaxis.set_minor_formatter(NullFormatter())
 
     ax2.axvline(
         fc,
