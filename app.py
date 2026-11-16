@@ -198,7 +198,7 @@ st.divider()
 # 6. 프로그램 목적 및 작동 원리 설명
 # ------------------------------------------------------------
 
-with st.expander("📖 프로그램의 목적과 작동 원리 알아보기", expanded=True):
+with st.expander("📖 프로그램의 목적과 작동 원리 알아보기", expanded=False):
 
     st.markdown("""
     ### ① 프로그램의 목적
