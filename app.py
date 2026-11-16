@@ -17,8 +17,6 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-
-/* 전체 화면 */
 .block-container {
     max-width: 1200px;
     padding-top: 1.5rem;
@@ -27,7 +25,6 @@ st.markdown("""
     padding-right: 3rem;
 }
 
-/* 제목 */
 h1 {
     font-size: 1.65rem !important;
     font-weight: 700 !important;
@@ -43,17 +40,14 @@ h3 {
     font-size: 1.05rem !important;
 }
 
-/* 본문 글씨 */
 p, label, .stMarkdown {
     font-size: 0.88rem;
 }
 
-/* 설명 글씨 */
 .stCaption {
     font-size: 0.75rem;
 }
 
-/* 결과 카드 */
 [data-testid="stMetric"] {
     background-color: rgba(128, 128, 128, 0.07);
     padding: 12px 15px;
@@ -61,7 +55,6 @@ p, label, .stMarkdown {
     border: 1px solid rgba(128, 128, 128, 0.15);
 }
 
-/* 결과 카드 내부 글씨 */
 [data-testid="stMetricLabel"] {
     font-size: 0.78rem !important;
 }
@@ -71,39 +64,24 @@ p, label, .stMarkdown {
     font-weight: 650;
 }
 
-/* 입력창 */
 .stNumberInput, .stSelectbox {
     margin-bottom: 0.35rem;
 }
 
-/* 버튼 */
 .stButton button,
 .stDownloadButton button {
     border-radius: 8px;
     font-size: 0.85rem;
 }
 
-/* 구분선 */
 hr {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
 
-/* 데이터 표 */
-[data-testid="stDataFrame"] {
-    border-radius: 8px;
-}
-
-/* 사이드바 */
 [data-testid="stSidebar"] {
     min-width: 270px;
 }
-
-/* 그래프 여백 */
-[data-testid="stImage"] {
-    margin: 0 auto;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -206,9 +184,7 @@ def run_self_tests():
 
 st.title("🔌 전자 필터 설계 및 주파수 응답 분석기")
 
-st.caption(
-    "RC Filter Design & Frequency Response Analyzer"
-)
+st.caption("RC Filter Design & Frequency Response Analyzer")
 
 st.write(
     "저항과 커패시터 값을 입력하면 RC 필터의 차단 주파수, "
@@ -219,7 +195,91 @@ st.divider()
 
 
 # ------------------------------------------------------------
-# 6. 용어 설명
+# 6. 프로그램 목적 및 작동 원리 설명
+# ------------------------------------------------------------
+
+with st.expander("📖 프로그램의 목적과 작동 원리 알아보기", expanded=True):
+
+    st.markdown("""
+    ### ① 프로그램의 목적
+
+    이 프로그램은 저항(R)과 커패시터(C)로 구성된 RC 필터의
+    전기적 특성을 분석하고 설계하는 것을 목적으로 합니다.
+
+    사용자가 저항과 커패시터의 값을 입력하면 차단 주파수를 계산하고,
+    주파수 변화에 따라 출력 전압과 전압 이득, 위상차가
+    어떻게 달라지는지 그래프와 표로 확인할 수 있습니다.
+
+    또한 원하는 차단 주파수를 설정하면 필요한 저항값을
+    역으로 계산하여 회로 설계에 활용할 수 있습니다.
+
+    ---
+
+    ### ② RC 필터의 작동 원리
+
+    RC 필터는 저항(R)과 커패시터(C)를 이용하여
+    입력 신호의 주파수에 따라 출력 신호의 크기를 조절하는 회로입니다.
+
+    커패시터는 주파수에 따라 교류 신호에 대한 저항 성분인
+    용량 리액턴스가 달라집니다.
+
+    주파수가 높아질수록 용량 리액턴스는 작아지고,
+    주파수가 낮아질수록 용량 리액턴스는 커집니다.
+
+    이러한 특성을 이용하면 특정 주파수 영역의 신호를
+    통과시키거나 약하게 만들 수 있습니다.
+
+    **저역통과 필터**
+
+    낮은 주파수의 신호는 잘 통과시키고,
+    높은 주파수의 신호는 약하게 만듭니다.
+
+    **고역통과 필터**
+
+    높은 주파수의 신호는 잘 통과시키고,
+    낮은 주파수의 신호는 약하게 만듭니다.
+
+    ---
+
+    ### ③ 차단 주파수의 계산 원리
+
+    RC 필터의 차단 주파수는 다음 공식으로 계산합니다.
+
+    \[
+    f_c = \frac{1}{2\pi RC}
+    \]
+
+    - R: 저항값(Ω)
+    - C: 커패시터의 정전용량(F)
+    - fc: 차단 주파수(Hz)
+
+    저항이나 커패시터의 값이 커지면 차단 주파수는 낮아지고,
+    두 값이 작아지면 차단 주파수는 높아집니다.
+
+    차단 주파수에서 출력 전압의 크기는 입력 전압의 약 70.7%가 됩니다.
+
+    ---
+
+    ### ④ 프로그램의 분석 과정
+
+    1. 사용자가 필터 종류, 저항, 커패시터, 입력 전압을 설정합니다.
+    2. 입력된 저항과 커패시터 값으로 차단 주파수를 계산합니다.
+    3. 설정한 주파수 범위에서 각 주파수의 전압 이득과 위상차를 계산합니다.
+    4. 전압 이득을 입력 전압에 곱하여 출력 전압을 구합니다.
+    5. 계산 결과를 그래프와 표로 표시하고 CSV 파일로 저장할 수 있습니다.
+
+    ---
+
+    **활용 목적**
+
+    이 프로그램을 통해 저항과 커패시터의 변화가 필터의 특성에
+    어떤 영향을 주는지 직접 확인하고,
+    RC 회로의 주파수 응답 원리를 이해할 수 있습니다.
+    """)
+
+
+# ------------------------------------------------------------
+# 7. 용어 설명
 # ------------------------------------------------------------
 
 if "show_explanation" not in st.session_state:
@@ -286,7 +346,7 @@ st.info(
 
 
 # ------------------------------------------------------------
-# 7. 사용자 입력
+# 8. 사용자 입력
 # ------------------------------------------------------------
 
 st.sidebar.header("⚙️ 회로 및 분석 조건")
@@ -296,12 +356,14 @@ filter_type = st.sidebar.selectbox(
     ["저역통과", "고역통과"]
 )
 
+# 모든 숫자 입력의 증가 및 감소 간격을 1로 설정
+
 resistance_kohm = st.sidebar.number_input(
     "저항값 R (kΩ)",
     min_value=0.001,
     max_value=10000.0,
     value=1.0,
-    step=0.1
+    step=1.0
 )
 
 capacitance_uf = st.sidebar.number_input(
@@ -309,14 +371,15 @@ capacitance_uf = st.sidebar.number_input(
     min_value=0.001,
     max_value=100000.0,
     value=1.0,
-    step=0.1
+    step=1.0
 )
 
 input_voltage = st.sidebar.number_input(
     "입력 전압 크기 (V)",
     min_value=0.001,
     max_value=100000.0,
-    value=5.0
+    value=5.0,
+    step=1.0
 )
 
 st.sidebar.divider()
@@ -327,14 +390,16 @@ start_frequency = st.sidebar.number_input(
     "분석 시작 주파수 (Hz)",
     min_value=0.001,
     max_value=1e9,
-    value=10.0
+    value=10.0,
+    step=1.0
 )
 
 end_frequency = st.sidebar.number_input(
     "분석 종료 주파수 (Hz)",
     min_value=0.002,
     max_value=1e12,
-    value=100000.0
+    value=100000.0,
+    step=1.0
 )
 
 number_of_points = st.sidebar.slider(
@@ -349,12 +414,13 @@ test_frequency = st.sidebar.number_input(
     "별도로 확인할 주파수 (Hz)",
     min_value=0.001,
     max_value=1e12,
-    value=1000.0
+    value=1000.0,
+    step=1.0
 )
 
 
 # ------------------------------------------------------------
-# 8. 계산 및 입력값 검증
+# 9. 계산 및 입력값 검증
 # ------------------------------------------------------------
 
 r_ohm = resistance_kohm * 1000.0
@@ -398,7 +464,7 @@ else:
 
 
 # ------------------------------------------------------------
-# 9. 리스트와 반복문을 이용한 데이터 처리
+# 10. 리스트와 반복문을 이용한 데이터 처리
 # ------------------------------------------------------------
 
 frequency_list = frequencies.tolist()
@@ -413,7 +479,7 @@ output_voltage_list = calculate_output_voltages(
 
 
 # ------------------------------------------------------------
-# 10. 계산 결과
+# 11. 계산 결과
 # ------------------------------------------------------------
 
 st.subheader("📊 분석 결과")
@@ -452,14 +518,16 @@ st.divider()
 
 
 # ------------------------------------------------------------
-# 11. 주파수 응답 그래프
+# 12. 주파수 응답 그래프
 # ------------------------------------------------------------
 
 st.subheader("📈 주파수 응답 분석")
 
 graph_col1, graph_col2 = st.columns(2)
 
+
 # 전압 이득 그래프
+
 with graph_col1:
 
     st.markdown("**① 주파수에 따른 전압 이득**")
@@ -489,10 +557,7 @@ with graph_col1:
 
     ax1.set_xlabel("Frequency (Hz)", fontsize=8)
     ax1.set_ylabel("Gain (dB)", fontsize=8)
-    ax1.set_title(
-        f"{filter_type} filter",
-        fontsize=10
-    )
+    ax1.set_title(f"{filter_type} filter", fontsize=10)
 
     ax1.tick_params(labelsize=7)
     ax1.grid(True, which="both", alpha=0.25)
@@ -505,6 +570,7 @@ with graph_col1:
 
 
 # 위상차 그래프
+
 with graph_col2:
 
     st.markdown("**② 주파수에 따른 위상 변화**")
@@ -528,10 +594,7 @@ with graph_col2:
     ax2.set_xlabel("Frequency (Hz)", fontsize=8)
     ax2.set_ylabel("Phase (degrees)", fontsize=8)
 
-    ax2.set_title(
-        f"{filter_type} filter",
-        fontsize=10
-    )
+    ax2.set_title(f"{filter_type} filter", fontsize=10)
 
     ax2.tick_params(labelsize=7)
     ax2.grid(True, which="both", alpha=0.25)
@@ -547,7 +610,7 @@ st.divider()
 
 
 # ------------------------------------------------------------
-# 12. 계산 데이터 및 CSV 다운로드
+# 13. 계산 데이터 및 CSV 다운로드
 # ------------------------------------------------------------
 
 st.subheader("📋 계산 데이터")
@@ -585,7 +648,7 @@ st.divider()
 
 
 # ------------------------------------------------------------
-# 13. 설계 역산 기능
+# 14. 설계 역산 기능
 # ------------------------------------------------------------
 
 st.subheader("④ 설계 역산 기능")
@@ -598,7 +661,8 @@ target_fc = st.number_input(
     "목표 차단 주파수 (Hz)",
     min_value=0.001,
     max_value=1e9,
-    value=1000.0
+    value=1000.0,
+    step=1.0
 )
 
 required_r = 1.0 / (2.0 * np.pi * target_fc * c_f)
@@ -614,7 +678,7 @@ st.divider()
 
 
 # ------------------------------------------------------------
-# 14. 자동 검증
+# 15. 자동 검증
 # ------------------------------------------------------------
 
 with st.expander("🔍 계산 공식 자동 검증 결과 보기"):
@@ -634,7 +698,7 @@ with st.expander("🔍 계산 공식 자동 검증 결과 보기"):
 
 
 # ------------------------------------------------------------
-# 15. 하단 안내
+# 16. 하단 안내
 # ------------------------------------------------------------
 
 st.divider()
